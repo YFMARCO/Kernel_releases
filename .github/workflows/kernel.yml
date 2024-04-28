@@ -23,7 +23,7 @@ jobs:
           sudo apt-get install -y zip unzip tar gzip bzip2 rar unrar cpio jq
 
       - name: Clone kernel source
-        run: git clone https://github.com/GXC2356/platform_kernel_xiaomi_vayu.git -b main --depth=1 .
+        run: git clone https://github.com/DarkLord2099/platform_kernel_xiaomi_vayu.git -b main --depth=1 .
 
       - name: Start Compilation
         run: bash build.sh
@@ -31,7 +31,7 @@ jobs:
       - name: Set-up files
         run: |
           # Set-up files info
-            zip_file=$(find $HOME -name 'Skyline*.zip' -print -quit)
+            zip_file=$(find $HOME -name 'sparta*.zip' -print -quit)
             echo "ZIP_FILE=$zip_file" >> $GITHUB_ENV
             echo "ZIP_NAME=$(basename "$zip_file" .zip)" >> $GITHUB_ENV
 
