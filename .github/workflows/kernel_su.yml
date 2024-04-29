@@ -36,7 +36,7 @@ jobs:
             echo "ZIP_NAME=$(basename "$zip_file" .zip)" >> $GITHUB_ENV
 
       - name: Upload files to repository releases page
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             ${{ env.ZIP_FILE }}
