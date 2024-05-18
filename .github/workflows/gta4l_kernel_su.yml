@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-       shell: bash
-       working-directory: ${{ github.workspace }}
+        shell: bash
+        working-directory: ${{ github.workspace }}
 
     steps:
       - name: Cleanup
@@ -18,9 +18,7 @@ jobs:
       - name: Set-up environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential bc lld gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libssl-dev libfl-dev
-          sudo apt-get install -y curl git ftp lftp wget libarchive-tools ccache python2 python2-dev
-          sudo apt-get install -y zip unzip tar gzip bzip2 rar unrar cpio jq
+          sudo apt-get install -y build-essential bc lld gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libssl-dev libfl-dev curl git ftp lftp wget libarchive-tools ccache python2 python2-dev zip unzip tar gzip bzip2 rar unrar cpio jq
 
       - name: Clone kernel source
         run: git clone https://github.com/YFMARCO/android_kernel_samsung_sm6115yy.git -b kernelsu --depth=1 .
@@ -31,9 +29,9 @@ jobs:
       - name: Set-up files
         run: |
           # Set-up files info
-            zip_file=$(find $HOME -name 'Sparta*.zip' -print -quit)
-            echo "ZIP_FILE=$zip_file" >> $GITHUB_ENV
-            echo "ZIP_NAME=$(basename "$zip_file" .zip)" >> $GITHUB_ENV
+          zip_file=$(find $HOME -name 'Sparta*.zip' -print -quit)
+          echo "ZIP_FILE=$zip_file" >> $GITHUB_ENV
+          echo "ZIP_NAME=$(basename "$zip_file" .zip)" >> $GITHUB_ENV
 
       - name: Upload files to repository releases page
         uses: softprops/action-gh-release@v1
@@ -44,3 +42,11 @@ jobs:
           tag_name: ${{ github.run_id }}
           body: |
             4.19.311 | KernelSU
+
+      - name: Save log to file
+        run: tee log.txt
+
+      - name: Upload log file
+        run: |
+          link=$(curl --upload-file log.txt https://transfer.adttemp.com.br/log.txt)
+          echo "Log link: $link"
