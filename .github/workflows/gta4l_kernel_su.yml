@@ -1,52 +1,67 @@
-name: Build and Release Kernel
+name: Build Android Kernel
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  Kernel:
+  build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ github.workspace }}
 
     steps:
-      - name: Cleanup
-        run: rm -rf ${{ github.workspace }}/*
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set-up environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential bc lld gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libssl-dev libfl-dev curl git ftp lftp wget libarchive-tools ccache python2 python2-dev zip unzip tar gzip bzip2 rar unrar cpio jq
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '11'
 
-      - name: Clone kernel source
-        run: git clone https://github.com/YFMARCO/android_kernel_samsung_sm6115yy.git -b kernelsu --depth=1 .
+    - name: Clone kernel source
+      run: git clone https://github.com/YFMARCO/android_kernel_samsung_sm611599.git -b lineage-21 --depth=1 .
 
-      - name: Start Compilation
-        run: bash build.sh
+    - name: Build kernel
+      run: |
+        # Replace with your build commands
+        # For example:
+        # make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- defconfig
+        # make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc --all)
 
-      - name: Set-up files
-        run: |
-          # Set-up files info
-          zip_file=$(find $HOME -name 'Sparta*.zip' -print -quit)
-          echo "ZIP_FILE=$zip_file" >> $GITHUB_ENV
-          echo "ZIP_NAME=$(basename "$zip_file" .zip)" >> $GITHUB_ENV
+    - name: Build kernel su
+      run: |
+        # Add commands to build kernel su
+        # For example:
+        # git clone https://github.com/topjohnwu/su
+        # cd su
+        # make
 
-      - name: Upload files to repository releases page
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            ${{ env.ZIP_FILE }}
-          name: ${{ env.ZIP_NAME }}
-          tag_name: ${{ github.run_id }}
-          body: |
-            4.19.311 | KernelSU
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.run_id }}
+        release_name: KernelSU
+        draft: false
+        prerelease: false
 
-      - name: Save log to file
-        run: tee log.txt
+    - name: Upload files to release
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: /path/to/your/compiled/kernel.zip
+        asset_name: kernel.zip
+        asset_content_type: application/zip
 
-      - name: Upload log file
-        run: |
-          link=$(curl --upload-file log.txt https://transfer.adttemp.com.br/log.txt)
-          echo "Log link: $link"
+    - name: Run workflow
+      run: |
+        # Add any additional commands you need to run after building the kernel
+        # For example:
+        # echo "Kernel build completed successfully!"
+
